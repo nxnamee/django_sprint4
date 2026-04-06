@@ -144,7 +144,9 @@ def create_post(request):
 
 
 def edit_post(request, post_id):
-    post = get_object_or_404(Post, id=post_id, author=request.user)
+    post = get_object_or_404(Post, id=post_id)
+    if not request.user.is_authenticated or request.user != post.author:
+        return redirect('blog:post_detail', id=post_id)
     if request.method == 'POST':
         form = PostForm(request.POST, request.FILES, instance=post)
         if form.is_valid():
@@ -173,6 +175,8 @@ def add_comment(request, post_id):
 
 
 def edit_comment(request, post_id, comment_id):
+    if not request.user.is_authenticated:
+        return redirect('login')
     comment = get_object_or_404(Comment, id=comment_id, author=request.user, post_id=post_id)
     if request.method == 'POST':
         form = CommentForm(request.POST, instance=comment)
@@ -185,6 +189,8 @@ def edit_comment(request, post_id, comment_id):
 
 
 def delete_comment(request, post_id, comment_id):
+    if not request.user.is_authenticated:
+        return redirect('login')
     comment = get_object_or_404(Comment, id=comment_id, author=request.user, post_id=post_id)
     if request.method == 'POST':
         comment.delete()
@@ -193,6 +199,8 @@ def delete_comment(request, post_id, comment_id):
 
 
 def delete_post(request, post_id):
+    if not request.user.is_authenticated:
+        return redirect('blog:post_detail', id=post_id)
     post = get_object_or_404(Post, id=post_id, author=request.user)
     if request.method == 'POST':
         post.delete()

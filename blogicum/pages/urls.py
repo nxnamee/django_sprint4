@@ -7,5 +7,6 @@ app_name = 'pages'
 urlpatterns = [
     path('about/', views.AboutView.as_view(), name='about'),
     path('rules/', views.RulesView.as_view(), name='rules'),
-    path('registration/', views.registration, name='registration'),
+    # Dummy path for reverse() to work - the actual view is in main urls.py
+    path('auth/registration/', views.RegistrationView.as_view(), name='registration'),
 ]
