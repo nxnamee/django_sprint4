@@ -24,6 +24,11 @@
       <div class="card-body">
         <form method="post" enctype="multipart/form-data">
           {% csrf_token %}
+          {% if form.fields.category.queryset|length == 0 %}
+            <div class="alert alert-warning" role="alert">
+              Нет доступных категорий. Создайте хотя бы одну категорию в админке.
+            </div>
+          {% endif %}
           {% if not '/delete/' in request.path %}
             {% bootstrap_form form %}
           {% else %}

@@ -23,6 +23,13 @@ class PostCreateForm(forms.ModelForm):
         model = Post
         fields = ['title', 'text', 'image', 'location', 'category']
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        category_field = self.fields.get('category')
+        if category_field is not None:
+            category_field.queryset = Category.objects.filter(is_published=True)
+            category_field.empty_label = 'Выберите категорию'
+
 
 class PostForm(forms.ModelForm):
     pub_date = forms.DateTimeField(
@@ -36,6 +43,10 @@ class PostForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        category_field = self.fields.get('category')
+        if category_field is not None:
+            category_field.queryset = Category.objects.filter(is_published=True)
+            category_field.empty_label = 'Выберите категорию'
         if not self.instance.pk and not self.data:
             self.fields['pub_date'].initial = timezone.now()
 
