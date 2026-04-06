@@ -1,39 +1,36 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm
-from django.urls import reverse_lazy
-from django.views.generic import CreateView
 from django.contrib.auth import login
+from django.views.generic import TemplateView
 
 
-def about(request):
-    return render(request, "pages/about.html")
+class AboutView(TemplateView):
+    template_name = 'pages/about.html'
 
 
-def rules(request):
-    return render(request, "pages/rules.html")
+class RulesView(TemplateView):
+    template_name = 'pages/rules.html'
 
 
-def csrf_failure(request, reason=''):
-    return render(request, 'pages/403csrf.html', status=403)
+def csrf_failure(request, reason=""):
+    return render(request, 'pages/403csrf.html')
 
 
 def page_not_found(request, exception):
-    return render(request, 'pages/404.html', status=404)
+    return render(request, 'pages/404.html')
 
 
 def server_error(request):
-    return render(request, 'pages/500.html', status=500)
+    return render(request, 'pages/500.html')
 
 
-class RegistrationView(CreateView):
-    form_class = UserCreationForm
-    success_url = reverse_lazy('blog:index')
-    template_name = 'registration/registration_form.html'
-    
-    def form_valid(self, form):
-        response = super().form_valid(form)
-        login(self.request, self.object)
-        return response
-
-
-registration = RegistrationView.as_view()
+def registration(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('blog:profile', username=user.username)
+    else:
+        form = UserCreationForm()
+    return render(request, 'registration/registration_form.html', {'form': form})
